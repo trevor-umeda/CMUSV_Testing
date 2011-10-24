@@ -147,6 +147,20 @@ Factory.define :trevor, :parent => :person do |p|
   p.webiso_account "trevor.umeda@andrew.cmu.edu"
 end
 
+Factory.define :swapna, :parent => :person do |p|
+  p.is_student 1
+  p.is_part_time 0
+  p.graduation_year "2012"
+  p.masters_program  "SE"
+  p.masters_track  "Tech"
+  p.twiki_name "SwapnaVarghese"
+  p.first_name "Swapna"
+  p.last_name "Varghese"
+  p.human_name "Swapna Varghese"
+  p.email "swapna.varghese@sv.cmu.edu"
+  p.webiso_account "svarghes@andrew.cmu.edu"
+end
+
 
 Factory(:task_type, :name => "Working on deliverables")
 Factory(:task_type, :name => "Readings")
