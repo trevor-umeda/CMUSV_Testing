@@ -8,6 +8,18 @@ describe EffortLogLineItem do
       }.should change(EffortLogLineItem, :count).by(1)
     end
 
+    it 'determines total effort correctly' do
+      effort_log_line_item = Factory(:elli_line1,:day1 => 1,:day2 => 2,:day3 => 3, :day4 => 4,:day5 => 5, :day6 => 6,:day7 => 7)
+      effort_log_line_item.determine_total_effort
+      effort_log_line_item.sum.should == 28
+    end
+
+    it 'determines total effort correctly even if nothing is set' do
+      effort_log_line_item = EffortLogLineItem.new()
+
+      effort_log_line_item.determine_total_effort
+      effort_log_line_item.sum.should == 0
+    end
 
     context "is not valid" do    
       [:day1, :day2, :day3, :day4, :day5, :day6, :day7].each do |attr|
@@ -47,5 +59,7 @@ describe EffortLogLineItem do
         end
       end
     end
+
+
 
   end

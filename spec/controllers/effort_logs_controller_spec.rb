@@ -31,6 +31,10 @@ describe EffortLogsController do
       people_without_effort.size.should == 0
       people_with_effort[0].should == person_who_has_logged_effort.human_name
     end
+    it "should find which column today is" do
+      column = subject.which_column_is_today(2011,43)
 
+    end
   end
+
 end

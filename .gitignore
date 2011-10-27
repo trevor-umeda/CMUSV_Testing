@@ -2,7 +2,7 @@
 db/*.sqlite3
 log/*.log
 tmp/
-                      
+ db/seeds.rb
 .svn
 .gems
 .gems_old
