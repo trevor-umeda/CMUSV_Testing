@@ -161,6 +161,19 @@ Factory.define :swapna, :parent => :person do |p|
   p.webiso_account "svarghes@andrew.cmu.edu"
 end
 
+Factory.define :neha, :parent => :person do |p|
+  p.is_student 1
+  p.is_part_time 0
+  p.graduation_year "2012"
+  p.masters_program  "SE"
+  p.masters_track  "Tech"
+  p.twiki_name "NehaSinha"
+  p.first_name "Neha"
+  p.last_name "Sinha"
+  p.human_name "Neha Sinha"
+  p.email "neha.sinha@sv.cmu.edu"
+  p.webiso_account "nehasinh@andrew.cmu.edu"
+end
 
 Factory(:task_type, :name => "Working on deliverables")
 Factory(:task_type, :name => "Readings")
@@ -171,6 +184,7 @@ Factory(:task_type, :name => "Other")
 todd = Factory.create(:todd)
 ed = Factory.create(:ed)
 Factory.create(:trevor)
+Factory.create(:neha)
 Factory.create(:team_terrific) #This will create awe_smith, betty_ross, and charlie_moss
 
 
