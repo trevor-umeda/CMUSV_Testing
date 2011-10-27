@@ -185,6 +185,8 @@ todd = Factory.create(:todd)
 ed = Factory.create(:ed)
 Factory.create(:trevor)
 Factory.create(:neha)
+Factory.create(:swapna)
+
 Factory.create(:team_terrific) #This will create awe_smith, betty_ross, and charlie_moss
 
 
