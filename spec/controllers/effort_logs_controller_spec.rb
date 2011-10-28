@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe EffortLogsController do
+
   context "it should send midweekly reminder email to SE students" do
     it "who have not logged effort" do
       person_who_needs_reminder = Factory(:student_sam, :effort_log_warning_email => Date.today - 1.day)
@@ -31,10 +32,35 @@ describe EffortLogsController do
       people_without_effort.size.should == 0
       people_with_effort[0].should == person_who_has_logged_effort.human_name
     end
-    it "should find which column today is" do
-      column = subject.which_column_is_today(2011,43)
 
-    end
   end
+     context "should have index" do
+       before(:each) do
+         @effort_log = Factory(:effort_log)
+       @course = Factory(:course)
+       @course2 = Factory(:fse)
+       login(@effort_log.person)
+       end
+       it "should have a successful response?" do
+        get 'index'
+      end
+    end
+   describe "should have show" do
+     before(:each)do
+       @effort_log = Factory(:effort_log)
+       @admin_andy = Factory(:admin_andy)
+       @course = Factory(:course)
+       @course2 = Factory(:fse)
+       login(@admin_andy)
 
+     end
+     it "should function basically" do
+        get :show, :id => @effort_log
+        assigns[:effort_log].should == @effort_log
+        assigns[:courses][0].should == @course2
+        assigns[:courses][1].should == @course
+
+        assigns[:today_column].should_not be_nil
+      end
+    end
 end

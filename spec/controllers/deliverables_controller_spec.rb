@@ -79,15 +79,27 @@ describe DeliverablesController do
 
         before do
           login(@faculty_frank)
+          get :my_deliverables, :id => @student_sam.id
+
         end
 
         it 'assigns @deliverables' do
-          get :my_deliverables, :id => @student_sam.id
           assigns(:current_deliverables).should == [@deliverable, @deliverable]
           assigns(:past_deliverables).should == [@deliverable, @deliverable]
         end
-      end
 
+
+
+      end
+      context "as a faculty not related to the course"do
+        before do
+          login (@faculty_fagan)
+          get :my_deliverables, :id => @student_sam.id
+
+        end
+        it_should_behave_like "permission denied for person deliverable"
+
+      end
       context "as any other student" do
         before do
           login(@student_sally)
@@ -119,7 +131,7 @@ describe DeliverablesController do
         end
 
         it "someone else on the team can see it" do
-          login(@student_sam)
+          login(@student_sally)
           @team.stub(:is_person_on_team?).and_return(true)
           get :show, :id => @deliverable.id
           assigns(:deliverable).should == @deliverable
@@ -144,18 +156,45 @@ describe DeliverablesController do
       end
     end
 
+    describe "Get new" do
+       before(:each) do
+       @course = mock_model(Course, :faculty => [@faculty_frank], :course_id => 42)
+        @deliverable = stub_model(Deliverable, :course_id => @course.id, :owner_id => @student_sam.id, :is_team_deliverable => true)
+        @team = stub_model(Team)
+        Deliverable.stub(:find).and_return(@deliverable)
+        @deliverable.stub(:team).and_return(@team)
+        Course.stub(:find).and_return(@course)
+       end
 
-#    describe "GET edit" do
-#
-#      it 'assigns @efforts' do
-#        efforts = [stub_model(SponsoredProjectEffort)]
-#        SponsoredProjectEffort.should_receive(:month_under_inspection_for_a_given_user).with(@faculty_frank.id).and_return(efforts)
-#        get :edit, :id => @faculty_frank.twiki_name
-#        assigns(:efforts).should == efforts
-#        assigns(:month).should == efforts[0].month
-#        assigns(:year).should == efforts[0].year
-#      end
-#    end
+      it "should get new " do
+        login(@student_sam)
+        @team.stub(:is_person_on_team?).and_return(false)
+
+        get :new, :course_id => @course.id, :task_number => 3
+        assigns(:deliverable).creator.should == @student_sam
+        assigns(:deliverable).creator.get_registered_courses == @student_sam.get_registered_courses
+        assigns(:deliverable).course_id.should == @course.id
+      end
+    end
+    describe "GET edit" do
+
+
+
+      it "the user must be allowed to edit" do
+         @course = mock_model(Course, :faculty => [@faculty_frank], :course_id => 42)
+        @deliverable = stub_model(Deliverable, :course_id => @course.id, :owner_id => @student_sam.id, :is_team_deliverable => true)
+        @team = stub_model(Team)
+        Deliverable.stub(:find).and_return(@deliverable)
+        @deliverable.stub(:team).and_return(@team)
+        Course.stub(:find).and_return(@course)
+        login(@student_sam)
+
+        get :edit, :id => @deliverable
+
+        response.should redirect_to(root_path)
+      end
+    end
+
 #
 #    describe "PUT update" do
 #
