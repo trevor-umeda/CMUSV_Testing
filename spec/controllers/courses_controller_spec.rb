@@ -18,6 +18,22 @@ describe CoursesController do
       login(Factory(:student_sam))
     end
 
+    describe "Index" do
+      it"should have courses" do
+        @course = Factory(:fse)
+        @courseA = Factory(:fse, :mini => "A")
+        @courseB = Factory(:fse,:mini=>"B")
+        @course2 = Factory(:fse,:semester => "Summer")
+        @course3 = Factory(:fse,:semester => "Spring")
+        get :index
+
+        assigns[:courses][0].should == @course
+        assigns[:courses][1].should == @courseB
+        assigns[:courses][2].should == @courseA
+        assigns[:courses][3].should == @course2
+        assigns[:courses][4].should == @course3
+      end
+    end
     describe "GET current semester" do
       before do
         get :current_semester
@@ -47,12 +63,17 @@ describe CoursesController do
 
     describe "GET show" do
       before do
-        get :show, :id => course.to_param
+        @team = Factory(:team_triumphant)
+        @course = @team.course
+        get :show, :id => @course
       end
 
-      specify { assigns(:course).should_not be_nil }
-      specify { assigns(:emails).should_not be_nil }
-
+      it "should do stuff right" do
+        @team.course_id.should == @course.id
+         assigns[:course].should == @course
+        assigns[:emails].should_not be_empty
+         assigns[:emails].length.should == 2
+      end
     end
 
     describe "not GET new" do
@@ -101,7 +122,8 @@ describe CoursesController do
 
   context "any staff can" do
     before do
-      login(Factory(:faculty_frank))
+      @frank = Factory(:faculty_frank)
+      login(@frank)
     end
 
     describe "GET new" do
@@ -110,6 +132,8 @@ describe CoursesController do
       end
 
       specify { assigns(:course).should_not be_nil }
+      specify { assigns(:course).year.should_not be_nil }
+
     end
 
     describe "GET edit" do
@@ -140,12 +164,22 @@ describe CoursesController do
           lambda {
             post :create, :course => {"number"=>"96-NEW", "semester"=>"Summer", "year"=>"2011"}
           }.should change(Course, :count).by(1)
+          @new_course = assigns(:course)
+          @new_course.year.should == 2011
+          @new_course.semester.should == "Summer"
+          @new_course.name.should == "New Course"
         end
 
         it "redirects to edit course" do
           post :create, :course => @course.attributes
           @new_course = assigns(:course)
           response.should redirect_to(edit_course_path(@new_course))
+        end
+
+        it "show show the right message" do
+           post :create, :course => @course.attributes
+          @new_course = assigns(:course)
+          flash[:notice].should == 'Course was successfully created.'
         end
       end
 
@@ -160,6 +194,7 @@ describe CoursesController do
           lambda {
             post :create, :course => {"number"=>@number, "semester"=>"Summer", "year"=>"2011"}
           }.should change(Course, :count).by(1)
+          assigns(:course).name.should == @course.name
         end
 
         it "redirects to edit course" do
@@ -191,7 +226,7 @@ describe CoursesController do
       describe "with valid params" do
 
         before do
-          put :update, :id => course.to_param, :course => {:name => 'NNNNN'}
+          put :update, :id => course.to_param, :course => {:name => 'NNNNN',:is_configured => true,:curriculum_url => "test",:configure_course_twiki => true}
         end
 
         it "updates the requested course name" do
@@ -205,6 +240,10 @@ describe CoursesController do
 
         it "redirects to the course" do
           response.should redirect_to(course_path(course))
+        end
+        it "should have a twiki" do
+          assigns(:course).twiki_url.should_not be_nil
+          assigns(:course).twiki_url.should == "test"
         end
       end
 
@@ -226,10 +265,19 @@ describe CoursesController do
 
     describe "not DELETE destroy" do
       before do
+        login(@frank)
         delete :destroy, :id => course.to_param
       end
 
       it_should_behave_like "permission denied"
+    end
+    describe "Should delete with proper admin privs" do
+      it "should delete" do
+        login(Factory(:admin_andy))
+        delete :destroy, :id => course.to_param
+        assigns(:course).should == course
+
+      end
     end
   end
 

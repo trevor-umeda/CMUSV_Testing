@@ -43,6 +43,7 @@ describe EffortLogsController do
        end
        it "should have a successful response?" do
         get 'index'
+         assigns(:effort_logs)[0].should == @effort_log
       end
     end
    describe "should have show" do
