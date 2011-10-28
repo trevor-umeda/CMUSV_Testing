@@ -16,7 +16,15 @@ describe Deliverable do
         subject.errors[attr].should_not be_empty
       end
     end
+    context "Update Team" do
+     it "should not update the team if the creators team isn't changed" do
+      deliverable = Factory.build(:team_deliverable)
+      team = Team.find_by_name("Team Triumphant")
+      deliverable.stub(:update_team)
+      deliverable.team_id.should == team.id
+     end
 
+    end
     context "when a duplicate deliverable for the same course, task and owner" do
       [:team_deliverable, :individual_deliverable].each do |symbol|
         it "for a team/individual deliverable" do
@@ -33,6 +41,80 @@ describe Deliverable do
           duplicate.should_not be_valid
         end
       end
+
+      it "should be a duplicate but have diff creator id."  do
+        original = Factory.build(:team_deliverable)
+        original.stub(:update_team)
+        sally = Person.find_by_last_name("Sally")
+        sam = Person.find_by_last_name("Sam")
+        original.creator = sam
+        original.save
+          duplicate = Deliverable.new()
+          duplicate.stub(:update_team)
+          duplicate.creator = sally
+          duplicate.course = original.course
+          duplicate.task_number = original.task_number
+          duplicate.is_team_deliverable = original.is_team_deliverable
+          duplicate.team_id = original.team_id
+          duplicate.should_not be_valid
+      end
+    end
+  end
+  context "should return current attachments" do
+    it "should return the most recent one" do
+
+      deliverableA = Factory.build(:deliverable_attachment)
+      deliverable = Deliverable.first
+      deliverableA.submitter = Person.find_by_last_name("Sam")
+      deliverableA.submission_date = Date.today - 1
+
+
+      deliverableB = DeliverableAttachment.new(:submitter => deliverableA.submitter)
+      deliverableA.submission_date = Date.today
+      deliverable.attachment_versions << deliverableB
+      deliverable.save
+      deliverable = Deliverable.first
+      deliverable.current_attachment.should == deliverableB
+
+    end
+  end
+  context "Owner name" do
+    it "should return the correct team name if team deliverable" do
+      deliverable = Factory.build(:team_deliverable)
+      deliverable.owner_name.should == "Team Triumphant"
+    end
+    it "should return correct creator name if individual" do
+      deliverable = Factory.build(:individual_deliverable)
+      deliverable.owner_name.should == "Student Sam"
+    end
+  end
+  context "owner_email" do
+     it "should return the correct team name if team deliverable" do
+      deliverable = Factory.build(:team_deliverable)
+      deliverable.owner_email.should == "fall-2011-team-triumphant@sandbox.sv.cmu.edu"
+    end
+    it "should return correct creator name if individual" do
+      deliverable = Factory.build(:individual_deliverable)
+      deliverable.owner_email.should == "student.sam@sv.cmu.edu"
+    end
+  end
+  context "find current by person" do
+    it "should find deliverables for individual" do
+      deliverable = Factory(:individual_deliverable)
+      deliverable2 = Deliverable.create(deliverable.attributes)
+      deliverable2.name = "DEFECT"
+      deliverable2.creator = deliverable.creator
+      deliverable2.course = deliverable.course
+      deliverable.team_id = nil
+      deliverable2.save
+      person = Person.find_by_last_name("Sam")
+      Deliverable.find_current_by_person(person)[0].should == deliverable
+      Deliverable.find_current_by_person(person).should == Deliverable.find_all_by_course_id(deliverable2.course_id)
+    end
+    it "should find deliverables for team" do
+      deliverable = Factory(:team_deliverable)
+      person = Person.find_by_last_name("Sam")
+      Deliverable.find_current_by_person(person)[0].should == deliverable
     end
   end
 

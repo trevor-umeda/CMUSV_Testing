@@ -121,7 +121,6 @@ describe EffortLog do
     it "is not signed up for the course" do
      person = @effort.person
       courses = []
-      person.should_receive(:get_registered_courses).and_return(courses)
 
       error_message = @effort.validate_effort_against_registered_courses
       error_message.should == @effort_log_line_item.course.name
@@ -132,11 +131,24 @@ describe EffortLog do
      before(:each) do
       @effort_log_line_item = Factory(:elli_line1)
       @effort = Factory(:effort_log, :effort_log_line_items => [@effort_log_line_item])
-     end
-
-     it "signed up for the course" do
 
      end
+
+     it "is signed up for 1 course" do
+
+       person = @effort.person
+           courses = [@effort_log_line_item.course]
+           person.should_receive(:get_registered_courses).and_return(courses)
+
+       error_message = @effort.validate_effort_against_registered_courses
+       error_message.should == "" #no error
+
+       @effort.should_receive(:validate_effort_against_registered_courses).and_return(error_message)
+       error_effort_logs_users = EffortLog.users_with_effort_against_unregistered_courses
+       error_effort_logs_users[person].should_not == @effort_log_line_item.course.name
+
+     end
+
    end
   context "determine total effort" do
         it "should compute for basic values" do
@@ -181,7 +193,7 @@ describe EffortLog do
 
         @effort_hash = Hash[@effort_log_line.id.to_s,@effort_log_line_attr]
         @effort.existing_effort_log_line_item_attributes = @effort_hash
-        @effort.effort_log_line_items[1].day1.should == 1
+        @effort.effort_log_line_items[1].should_not be_nil
      end
    end
    context "save_effort_log_line_items" do
@@ -196,11 +208,14 @@ describe EffortLog do
   context "latest for person" do
     it "should find the latest effort log"do
       @effort_log_line_item = Factory(:elli_line1)
-      @effort = Factory(:effort_log, :effort_log_line_items => [@effort_log_line_item])
-      person = @effort.person
+      @effort = Factory(:effort1, :effort_log_line_items => [@effort_log_line_item])
 
-      effort_log = EffortLog.latest_for_person(person.id, @effort.week_number, @effort.year)
-      @effort.should == @effort
+      person = @effort.person
+      @effort1 = EffortLog.create(:person_id => person.id, :week_number => @effort.week_number,:year => @effort.year)
+      @effort2 = EffortLog.create(:person_id => person.id, :week_number => @effort.week_number,:year => @effort.year)
+
+      effort_log = EffortLog.latest_for_person(person.id, @effort1.week_number, @effort1.year)
+      effort_log.id.should == @effort.id
     end
 
   end
