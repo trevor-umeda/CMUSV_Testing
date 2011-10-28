@@ -226,4 +226,19 @@ describe DeliverablesController do
 #    end
 
 
+
+
+
+  #-------------------------
+  # Tests by Team Deuce Ace
+  #-------------------------
+
+
+   #describe "Get index" do
+    # @student_sam = Factory(:student_sam)
+     #response.should redirect_to(my_deliverable_path(assigns[:current_user]))
+   #end
+
+
+
 end
