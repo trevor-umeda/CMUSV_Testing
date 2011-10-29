@@ -39,12 +39,25 @@ describe EffortLogsController do
          @effort_log = Factory(:effort_log)
        @course = Factory(:course)
        @course2 = Factory(:fse)
+         @effort_log2 = EffortLog.new(@effort_log.attributes)
+         @effort_log2.week_number = @effort_log.week_number - 1
+         @effort_log2.save
        login(@effort_log.person)
        end
        it "should have a successful response?" do
         get 'index'
-         assigns(:effort_logs)[0].should == @effort_log
-      end
+         assigns(:effort_logs).length.should == 2
+         assigns(:prior_week_number).should == @effort_log2.week_number
+         assigns(:show_new_link).should == false
+       end
+       it "should allow grace period" do
+         Date.stub(:commercial).and_return(Date.today)
+         get 'index'
+           assigns(:show_prior_week).should == true
+       end
+
+
+
     end
    describe "should have show" do
      before(:each)do
@@ -63,5 +76,38 @@ describe EffortLogsController do
 
         assigns[:today_column].should_not be_nil
       end
+   end
+  describe "get new" do
+    before(:each) do
+       @admin_andy = Factory(:student_sam)
+       @course = Factory(:course)
+       @course2 = Factory(:fse)
+       login(@admin_andy)
     end
+    it "should create with basic stuff" do
+      get :new
+      assigns(:effort_log).year = "2011"
+    end
+  end
+  describe "update" do
+    before(:each)do
+         @effort_log = Factory(:effort_log)
+       @course = Factory(:course)
+       @course2 = Factory(:fse)
+    end
+    it "should allow an update" do
+      login(@effort_log.person)
+
+      get :update, :id => @effort_log.id, :effort_log => {:year => "2009"}
+
+       flash[:notice].should == "EffortLog was successfully updated."
+      assigns(:effort_log).year.should == 2009
+    end
+
+    it "shouldn't allow a person not in that to edit'" do
+      login(Factory(:student_sally))
+      get :update, :id => @effort_log.id, :effort_log => @effort_log.attributes
+      flash[:error].should == "You do not have permission to edit the effort log."
+    end
+  end
 end
