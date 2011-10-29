@@ -35,6 +35,13 @@ describe EffortLogLineItem do
           effort_log_line_item.should_not be_valid
         end
       end
+      [:day1, :day2, :day3, :day4, :day5, :day6, :day7].each do |attr|
+      it "is not valid when #{attr} is more than 24 hrs" do
+        effort_log_line_item = Factory.build(:effort_log_line_item, attr => 100)
+          effort_log_line_item.should_not be_valid
+
+        end
+  end
     end
 
     context "associations --" do

@@ -20,7 +20,8 @@ describe "effort logs" do
       page.should have_content("Starting on")
       page.should have_content("Effort")
       page.should have_link("New effort log") || have_link("edit")
-      page.should have_link("Back")
+
+
       if has_link?("Show")
          click_link "Show"
          page.should have_content("Show Effort Log")
@@ -28,12 +29,13 @@ describe "effort logs" do
     end
   end
 
+
   #context "new effort log" do
   #
   #  it "renders new effort log page" do
   #    if has_link?("New effort log")
   #       click_link "New effort log"
-  #       page.should have_content("New Effort Log")
+  #       page.should have_content("New effort log")
   #       page.should have_button("Create")
   #       page.should have_link("Back")
   #    end
@@ -41,7 +43,7 @@ describe "effort logs" do
   #  it "creates the effort log" do
   #    if has_link?("New effort log")
   #       click_link "New effort log"
-  #      click_button "Create"
+  #      click_button "Update"
   #      page.should have_content("EffortLog was successfully created.")
   #    end
   #  end
@@ -63,14 +65,14 @@ describe "effort logs" do
 
     end
 
-    it "updates the effort log and links to previous page" do
-
-      if has_link?("Edit")
-        click_link "Edit"
-        page.should have_link("Update")
-      end
-
-    end
+    #it "updates the effort log and links to previous page" do
+    #
+    #  if has_link?("Edit")
+    #    click_link "Edit"
+    #    page.should have_link("Update")
+    #  end
+    #
+    #end
   end
 
 end
