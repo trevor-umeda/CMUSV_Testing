@@ -209,6 +209,11 @@ describe Deliverable do
   #-------------------------------
 
 
+  it 'can be created' do
+    lambda {
+      @deliverable = Factory(:deliverable)
+    }.should change(Deliverable, :count).by(1)
+  end
 
 end
 

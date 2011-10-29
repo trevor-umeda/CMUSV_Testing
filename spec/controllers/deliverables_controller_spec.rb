@@ -273,11 +273,27 @@ describe DeliverablesController do
   #-------------------------
 
 
-   #describe "Get index" do
+   describe "Get index" do
     # @student_sam = Factory(:student_sam)
-     #response.should redirect_to(my_deliverable_path(assigns[:current_user]))
-   #end
+     it "should get redirect " do
+       login(@faculty_frank)
+        get :index
+        response.should redirect_to(my_deliverables_path(assigns[:current_user]))
+     end
+  end
 
 
+  describe "GET my_deliverables" do
+    it "should not let everyone see every other person's deliverables"     do
+      login(@student_sally)
+      get :my_deliverables, :id => @student_sam
+      response.should redirect_to root_path
+    end
+
+  end
+
+  describe "GET edit" do
+    it "should "
+  end
 
 end

@@ -219,4 +219,7 @@ describe EffortLog do
     end
 
   end
+
+
+
 end
