@@ -110,4 +110,20 @@ describe EffortLogsController do
       flash[:error].should == "You do not have permission to edit the effort log."
     end
   end
+
+  #tests by Deuce Ace
+
+  describe "edit" do
+
+    it "should not allow students to create duplicate logs for the same course and type in one given week" do
+      get 'edit', :id => 2
+        @course1 = Factory(:mfse)
+        type1   = "Readings"
+        @course2 = Factory(:mfse)
+        type2 = "Readings"
+        if @course1.name == @course2.name
+            type1.should_not == type2
+        end
+      end
+    end
 end
